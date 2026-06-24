@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>イチニチ — 先輩を登録(デモ)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="demobar">
+  <span><b>DEMO</b> 先輩を登録すると <a href="seekers.html">求職者画面</a> にすぐ並びます(商談でその場で試せます)</span>
+  <span class="sep">|</span>
+  <a href="index.html">事業者向けTOP</a>
+  <a href="register.html">先輩を登録</a>
+  <a href="seekers.html">求職者画面</a>
+  <a href="employer.html">事業者ダッシュボード</a>
+</div>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand" href="index.html">
+      <span class="mark">イチ<em>ニチ</em></span>
+      <span class="tag">先輩を登録</span>
+    </a>
+    <nav class="navlinks">
+      <a href="seekers.html">求職者にどう見えるか →</a>
+    </nav>
+  </div>
+</header>
+
+<main class="appshell" style="max-width:680px">
+  <div class="apphead">
+    <div>
+      <h1>現場の先輩を登録</h1>
+      <p class="sub">求人票でなく「実際に教える人」を載せます。会社情報より、人柄と教え方を。</p>
+    </div>
+  </div>
+
+  <div class="formcard" id="form">
+    <div class="formrow">
+      <div><label class="fl">名前</label><input class="inp" id="f-name" placeholder="例)田中 健一" required></div>
+      <div><label class="fl">職種・役割</label><input class="inp" id="f-role" placeholder="例)設備施工管理 / 主任"></div>
+    </div>
+    <div class="formrow" style="margin-top:14px">
+      <div><label class="fl">経験年数</label><input class="inp" id="f-years" placeholder="例)この道 12年"></div>
+      <div><label class="fl">前職(あれば)</label><input class="inp" id="f-prev" placeholder="例)元・自動車ディーラー営業(7年)"></div>
+    </div>
+    <div style="margin-top:14px">
+      <label class="fl">教え方・人柄(ひとこと)</label>
+      <input class="inp" id="f-style" placeholder="例)最初の3ヶ月は隣について教えます。怒鳴りません。">
+    </div>
+    <div style="margin-top:14px">
+      <label class="fl">一日の流れ</label>
+      <input class="inp" id="f-day" placeholder="例)朝礼→現場巡回→図面確認を一緒に。昼は皆で外食。">
+    </div>
+    <div style="margin-top:14px">
+      <label class="fl">タグ(カンマ区切り)</label>
+      <input class="inp" id="f-tags" placeholder="例)未経験を5人育てた, 元ホワイト出身, 資格取得を支援">
+    </div>
+    <div style="margin-top:22px">
+      <button class="btn btn-primary" id="submit">この先輩を掲載する(無料)</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin:14px 0 0">※ 掲載は無料。本番では撮影・原稿の代行も可。</p>
+  </div>
+
+  <div class="formcard" id="done" style="display:none;text-align:center">
+    <div class="avatar" id="done-av" style="margin:0 auto 14px"></div>
+    <h3 style="margin:0 0 6px" id="done-name"></h3>
+    <p style="color:var(--ink-soft);margin:0 0 20px">を掲載しました。求職者の画面に並んでいます。</p>
+    <a class="btn btn-primary" href="seekers.html">求職者にどう見えるか確認する →</a>
+    <div style="margin-top:12px"><a href="register.html" style="font-size:14px;color:var(--muted)">もう一人登録する</a></div>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  document.getElementById("submit").addEventListener("click", () => {
+    const name = document.getElementById("f-name").value.trim();
+    if (!name) { toast("名前を入力してください。"); return; }
+    const tagsRaw = document.getElementById("f-tags").value.trim();
+    const color = MENTOR_COLORS[Math.floor(Math.random() * MENTOR_COLORS.length)];
+    const m = {
+      id: "c" + Date.now(),
+      name: name,
+      initial: name.charAt(0),
+      color: color,
+      role: document.getElementById("f-role").value.trim() || "現場の先輩",
+      years: document.getElementById("f-years").value.trim() || "",
+      prevJob: document.getElementById("f-prev").value.trim() || "",
+      style: document.getElementById("f-style").value.trim() || "未経験から丁寧に教えます。",
+      aboutDay: document.getElementById("f-day").value.trim() || "現場に同行しながら少しずつ覚えてもらいます。",
+      tags: tagsRaw ? tagsRaw.split(",").map(s => s.trim()).filter(Boolean) : ["未経験歓迎"],
+    };
+    saveCustomMentor(m);
+    document.getElementById("form").style.display = "none";
+    const done = document.getElementById("done");
+    const av = document.getElementById("done-av");
+    av.style.background = color;
+    av.textContent = m.initial;
+    document.getElementById("done-name").textContent = m.name + " さん(" + m.role + ")";
+    done.style.display = "block";
+    toast("掲載しました。求職者画面に反映されました。");
+  });
+</script>
+</body>
+</html>

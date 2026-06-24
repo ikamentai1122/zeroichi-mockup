@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>イチニチ — 事業者ダッシュボード(デモ)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="demobar">
+  <span><b>DEMO</b> 事業者の画面 — <a href="seekers.html">求職者画面</a> でライクを送ると、ここに届きます</span>
+  <span class="sep">|</span>
+  <a href="index.html">事業者向けTOP</a>
+  <a href="register.html">先輩を登録</a>
+  <a href="seekers.html">求職者画面</a>
+  <a href="employer.html">事業者ダッシュボード</a>
+</div>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand" href="index.html">
+      <span class="mark">イチ<em>ニチ</em></span>
+      <span class="tag">事業者ダッシュボード</span>
+    </a>
+    <nav class="navlinks">
+      <a href="#" onclick="resetDemo();return false;">デモをリセット</a>
+    </nav>
+  </div>
+</header>
+
+<main class="appshell">
+  <div class="apphead">
+    <div>
+      <h1 id="bizname"></h1>
+      <p class="sub">届いたライク(求職者からの「この先輩の下でやってみたい」)</p>
+    </div>
+    <span class="bizchip"><span class="dot"></span> <span id="cnt"></span></span>
+  </div>
+
+  <div class="leads" id="leads"></div>
+</main>
+
+<!-- action modal -->
+<div class="modal-bg" id="modalbg">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  document.getElementById("bizname").textContent = BIZ.name;
+
+  // デモを生きて見せるため、最初の閲覧で seeded のライクを1件用意
+  (function seed() {
+    if (!localStorage.getItem("ichinichi_seeded_v1")) {
+      const likes = loadLikes();
+      if (likes.length === 0) {
+        likes.push({
+          mentorId: "m2",
+          seeker: { name: "井上 さん(31)", prev: "元・経理事務(6年) / 福岡市在住", note: "数字と書類は得意。手に職をつけたい。" },
+          at: new Date(Date.now() - 1000*60*60*5).toISOString(),
+          status: "new",
+        });
+        saveLikes(likes);
+      }
+      localStorage.setItem("ichinichi_seeded_v1", "1");
+    }
+  })();
+
+  const leadsEl = document.getElementById("leads");
+  const modalbg = document.getElementById("modalbg");
+  const modal = document.getElementById("modal");
+
+  function fmt(iso) {
+    const d = new Date(iso), now = new Date();
+    const mins = Math.round((now - d) / 60000);
+    if (mins < 1) return "たった今";
+    if (mins < 60) return mins + "分前";
+    const h = Math.round(mins / 60);
+    if (h < 24) return h + "時間前";
+    return Math.round(h / 24) + "日前";
+  }
+
+  function render() {
+    const likes = loadLikes().slice().reverse();
+    document.getElementById("cnt").textContent = likes.length + " 件のライク";
+    if (likes.length === 0) {
+      leadsEl.innerHTML = `<div class="empty">まだライクはありません。<br><a href="seekers.html">求職者画面</a>で先輩にライクを送ると、ここに届きます。</div>`;
+      return;
+    }
+    leadsEl.innerHTML = "";
+    likes.forEach((l, idx) => {
+      const m = mentorById(l.mentorId);
+      if (!m) return;
+      const realIdx = loadLikes().length - 1 - idx; // index in stored (non-reversed) array
+      const done = l.status === "trial";
+      const el = document.createElement("div");
+      el.className = "lead" + (done ? " contacted" : "");
+      el.innerHTML = `
+        <div class="lt">
+          <div class="avatar" style="background:${m.color};width:46px;height:46px;font-size:17px">${m.initial}</div>
+          <div>
+            <div class="seeker">${l.seeker.name}${l.status === "new" ? '<span class="badge-new">NEW</span>' : ""}</div>
+            <div class="meta">${l.seeker.prev} ・ ${fmt(l.at)}</div>
+          </div>
+        </div>
+        <p class="liketo">「<b>${m.name}</b>(${m.role})」の下でやってみたい</p>
+        <p style="font-size:14px;color:var(--ink-soft);margin:8px 0 0">本人メモ:${l.seeker.note}</p>
+        <div class="actions">
+          ${l.status === "new"
+            ? `<button class="btn btn-primary btn-sm" data-act="meal" data-i="${realIdx}">飯に誘う(無料)</button>`
+            : l.status === "meal"
+            ? `<span class="status-pill">✓ 飯に誘い済み</span>
+               <button class="btn btn-primary btn-sm" data-act="trial" data-i="${realIdx}">有給一日体験を設定</button>`
+            : `<span class="status-pill">✓ 有給一日体験を設定済み(コーディネート料が発生)</span>`}
+        </div>`;
+      leadsEl.appendChild(el);
+    });
+    leadsEl.querySelectorAll("button[data-act]").forEach(b => {
+      b.addEventListener("click", () => openAction(parseInt(b.dataset.i), b.dataset.act));
+    });
+  }
+
+  function openAction(i, act) {
+    const likes = loadLikes();
+    const l = likes[i];
+    const m = mentorById(l.mentorId);
+    const first = l.seeker.name.split(" ")[0];
+    const isTrial = act === "trial";
+    const msg = isTrial
+      ? `${first}さん、先日はありがとうございました。よければ近いうちに<b>一日、現場を体験</b>してみませんか?当日は<b>日当をお支払い</b>します。実際の仕事を見て、お互い「やれそうか」を確かめましょう。`
+      : `${first}さん、ライクありがとうございます。${BIZ.name}の${m.name}です。まずは一度、ご飯でも食べながら現場の話をしませんか?`;
+    const feeBox = isTrial
+      ? `<div style="background:#fff6f2;border:1px solid #f3d2c6;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px;color:var(--ink-soft)">
+           この有給一日体験のコーディネート料: <b style="color:var(--accent-ink)">¥30,000</b><br>
+           <span style="color:var(--muted)">日程調整・当日の付きそい・体験後の相互フィードバック収集こみ。${(m.role || "").includes("施工管理") ? "対象職種のため、採用成立時は別途 ¥250,000。" : ""}</span>
+         </div>`
+      : `<p style="font-size:13px;color:var(--muted);margin-top:10px">飯は無料です。会って相性が良ければ、次は有給の一日体験へ。</p>`;
+    modal.innerHTML = `
+      <button class="x" onclick="closeModal()">×</button>
+      <h3>${isTrial ? "有給一日体験を設定" : "飯に誘う"}</h3>
+      <div class="mrole">${l.seeker.name} → ${m.name}(${m.role})</div>
+      <div class="field"><div class="k">送るメッセージ(雛形)</div><div class="v">${msg}</div></div>
+      <textarea class="inp" rows="2" style="margin-top:6px">${isTrial ? "体験候補日:今週土曜 / 来週水曜" : "候補日:今週金曜の夜 / 来週月曜のお昼"}</textarea>
+      ${feeBox}
+      <div class="actions">
+        <button class="btn btn-primary" id="confirm">${isTrial ? "この内容で体験を設定する" : "この内容で飯に誘う"}</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin:14px 0 0">※ デモのため実際の送信はされません。</p>`;
+    modal.querySelector("#confirm").addEventListener("click", () => {
+      const arr = loadLikes();
+      arr[i].status = isTrial ? "trial" : "meal";
+      saveLikes(arr);
+      closeModal();
+      toast(isTrial ? "有給一日体験を設定しました。" : "飯に誘いました。");
+      render();
+    });
+    modalbg.classList.add("open");
+  }
+  function closeModal() { modalbg.classList.remove("open"); }
+  modalbg.addEventListener("click", (e) => { if (e.target === modalbg) closeModal(); });
+
+  function resetDemo() {
+    localStorage.removeItem("ichinichi_likes_v1");
+    localStorage.removeItem("ichinichi_seeded_v1");
+    location.reload();
+  }
+  window.resetDemo = resetDemo;
+
+  render();
+</script>
+</body>
+</html>
