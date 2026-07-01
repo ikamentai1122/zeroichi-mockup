@@ -4,31 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>ボスマッチ — 先輩を登録(デモ)</title>
+<title>ボスマッチ — 先輩を登録</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="demobar">
-  <span><b>DEMO</b> 先輩を登録すると <a href="seekers.html">求職者画面</a> にすぐ並びます(商談でその場で試せます)</span>
-  <span class="sep">|</span>
-  <a href="index.html">事業者向けTOP</a>
-  <a href="register.html">先輩を登録</a>
-  <a href="seekers.html">求職者画面</a>
-  <a href="employer.html">事業者ダッシュボード</a>
-</div>
-
-<header class="site">
-  <div class="wrap bar">
-    <a class="brand" href="index.html">
-      <span class="mark">ボス<em>マッチ</em></span>
-      <span class="tag">先輩を登録</span>
-    </a>
-    <nav class="navlinks">
-      <a href="seekers.html">求職者にどう見えるか →</a>
-    </nav>
+<!-- big view switch -->
+<div class="viewswitch-wrap">
+  <a class="vs-home" href="index.html">ボス<em>マッチ</em></a>
+  <div class="viewswitch">
+    <a href="employer.html" class="active"><span class="vs-dot"></span>事業者の画面</a>
+    <a href="seekers.html"><span class="vs-dot"></span>求職者の画面</a>
   </div>
-</header>
+</div>
 
 <main class="appshell" style="max-width:680px">
   <div class="apphead">
@@ -60,9 +48,9 @@
       <input class="inp" id="f-tags" placeholder="例)未経験を5人育てた, 元ホワイト出身, 資格取得を支援">
     </div>
     <div style="margin-top:22px">
-      <button class="btn btn-primary" id="submit">この先輩を掲載する(無料)</button>
+      <button class="btn btn-primary btn-lg btn-block" id="submit">この先輩を掲載する(無料)</button>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin:14px 0 0">※ 掲載は無料。本番では撮影・原稿の代行も可。</p>
+    <p style="font-size:12px;color:var(--muted);margin:14px 0 0">掲載は無料。撮影・原稿の代行もご相談いただけます。</p>
   </div>
 
   <div class="formcard" id="done" style="display:none;text-align:center">
