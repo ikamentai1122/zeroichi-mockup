@@ -85,7 +85,8 @@
     document.getElementById("form").style.display = "none";
     const done = document.getElementById("done");
     const av = document.getElementById("done-av");
-    av.style.background = color;
+    av.style.background = mentorFill(m);
+    av.style.width = "64px"; av.style.height = "64px"; av.style.fontSize = "24px";
     av.textContent = m.initial;
     document.getElementById("done-name").textContent = m.name + " さん(" + m.role + ")";
     done.style.display = "block";

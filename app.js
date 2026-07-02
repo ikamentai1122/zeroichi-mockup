@@ -14,8 +14,10 @@ const BIZ = {
 const MENTORS = [
   {
     id: "m1", name: "田中 健一", initial: "田", color: "#3b6ea5",
+    grad: "linear-gradient(140deg,#5a8fc9,#2f5a8c)",
     role: "設備施工管理 / 主任", years: "この道 12年",
     prevJob: "元・自動車ディーラー営業(7年)",
+    trained: 5, rating: 4.8, online: true,
     style: "最初の3ヶ月は隣について教えます。怒鳴りません。分からないのは当たり前。",
     aboutDay: "朝礼→現場巡回→図面確認を一緒に。昼は皆で外食、夕方は片付けと翌日段取り。",
     tags: ["未経験を5人育てた", "元ホワイト出身", "資格取得を支援"],
@@ -27,8 +29,10 @@ const MENTORS = [
   },
   {
     id: "m2", name: "佐藤 美和", initial: "佐", color: "#c2603a",
+    grad: "linear-gradient(140deg,#e0824f,#a84e2c)",
     role: "電気工事 / 職長", years: "この道 9年",
     prevJob: "元・一般事務(派遣・5年)",
+    trained: 3, rating: 4.9, online: true,
     style: "私自身が事務から転職組。書類の作法は活きます。手元仕事は1から。",
     aboutDay: "盤の配線・点検に同行。記録と写真整理は前職スキルがそのまま武器に。",
     tags: ["事務→現場の当事者", "女性も活躍", "残業少なめ現場"],
@@ -40,8 +44,10 @@ const MENTORS = [
   },
   {
     id: "m3", name: "山口 大輔", initial: "山", color: "#2e7d6b",
+    grad: "linear-gradient(140deg,#3f9c87,#215c4f)",
     role: "施工管理 / 現場代理人", years: "この道 15年",
     prevJob: "高卒入社・たたき上げ",
+    trained: 8, rating: 4.6, online: false,
     style: "厳しい時は厳しい。でも理由を必ず言う。安全のための声出しは怒りじゃない。",
     aboutDay: "工程・安全管理が主。体力より段取り力。PCと電話が多い1日。",
     tags: ["年収例 480万〜", "管理職ルート", "土日休み現場あり"],
@@ -52,8 +58,10 @@ const MENTORS = [
   },
   {
     id: "m4", name: "中村 涼", initial: "中", color: "#8a5cc2",
+    grad: "linear-gradient(140deg,#a874e0,#6f45a0)",
     role: "空調設備 / 育成担当", years: "この道 6年",
     prevJob: "元・販売店員(アパレル)",
+    trained: 4, rating: 4.7, online: true,
     style: "接客やってた人は現場でも強い。お客さん対応を任せられる人が伸びます。",
     aboutDay: "取付・試運転に同行。午後は先輩とペアで1件。質問しやすい空気を作ります。",
     tags: ["接客出身歓迎", "20代多め", "教育マニュアルあり"],
@@ -75,6 +83,16 @@ function saveLikes(arr) { localStorage.setItem(LIKES_KEY, JSON.stringify(arr)); 
 // 事業者が商談中に登録した先輩(localStorage)。デフォルト4名に上乗せ表示。
 const CUSTOM_MENTORS_KEY = "ichinichi_custom_mentors_v1";
 const MENTOR_COLORS = ["#3b6ea5", "#c2603a", "#2e7d6b", "#8a5cc2", "#b5482f", "#4a7a3a"];
+const MENTOR_GRADS = {
+  "#3b6ea5": "linear-gradient(140deg,#5a8fc9,#2f5a8c)",
+  "#c2603a": "linear-gradient(140deg,#e0824f,#a84e2c)",
+  "#2e7d6b": "linear-gradient(140deg,#3f9c87,#215c4f)",
+  "#8a5cc2": "linear-gradient(140deg,#a874e0,#6f45a0)",
+  "#b5482f": "linear-gradient(140deg,#d86a49,#9a3a24)",
+  "#4a7a3a": "linear-gradient(140deg,#66a052,#39602c)",
+};
+// 先輩アバターの塗り(グラデ優先、なければ単色)
+function mentorFill(m) { return (m && (m.grad || MENTOR_GRADS[m.color])) || (m && m.color) || "#3b6ea5"; }
 function loadCustomMentors() {
   try { return JSON.parse(localStorage.getItem(CUSTOM_MENTORS_KEY) || "[]"); }
   catch (e) { return []; }

@@ -29,6 +29,9 @@
     <span class="rc-btn">先輩を登録 →</span>
   </a>
 
+  <!-- traction KPIs -->
+  <div class="kpis" id="kpis"></div>
+
   <div class="apphead">
     <div>
       <h1 id="bizname"></h1>
@@ -52,27 +55,27 @@
 <script src="app.js"></script>
 <script>
   document.getElementById("bizname").textContent = BIZ.name;
+  const COORD_FEE = 30000; // 有給一日体験のコーディネート料
 
-  // 初回閲覧で、届いたライクを1件用意(画面を生きて見せるため)
+  // 商談で「生きている」画面に見せるため、複数ステージのライクを用意。
   (function seed() {
-    if (!localStorage.getItem("ichinichi_seeded_v1")) {
-      const likes = loadLikes();
-      if (likes.length === 0) {
-        likes.push({
-          mentorId: "m2",
-          seeker: { name: "井上 さん(31)", prev: "元・経理事務(6年) / 福岡市在住", note: "数字と書類は得意。手に職をつけたい。" },
-          at: new Date(Date.now() - 1000*60*60*5).toISOString(),
-          status: "new",
-        });
-        saveLikes(likes);
-      }
-      localStorage.setItem("ichinichi_seeded_v1", "1");
+    if (!localStorage.getItem("ichinichi_seeded_v2")) {
+      const mins = m => new Date(Date.now() - m * 60000).toISOString();
+      saveLikes([
+        { mentorId: "m1", seeker: { name: "渡辺 さん(26)", prev: "元・アパレル販売(4年) / 春日市在住", note: "体を動かす仕事に変えたい。人に教えてもらえる環境が希望。" }, at: mins(60 * 48), status: "trial" },
+        { mentorId: "m2", seeker: { name: "井上 さん(31)", prev: "元・経理事務(6年) / 福岡市在住", note: "数字と書類は得意。手に職をつけたい。" }, at: mins(60 * 6), status: "meal" },
+        { mentorId: "m4", seeker: { name: "木下 さん(34)", prev: "元・飲食店長(8年) / 大野城市在住", note: "現場は未経験ですが、段取りとチーム管理には自信あり。" }, at: mins(95), status: "new" },
+      ]);
+      localStorage.setItem("ichinichi_seeded_v2", "1");
     }
   })();
 
   const leadsEl = document.getElementById("leads");
   const modalbg = document.getElementById("modalbg");
   const modal = document.getElementById("modal");
+
+  // 求職者アバターはニュートラルなスレート系で先輩と区別
+  function seekerFill() { return "linear-gradient(140deg,#5b6472,#39414d)"; }
 
   function fmt(iso) {
     const d = new Date(iso), now = new Date();
@@ -84,8 +87,41 @@
     return Math.round(h / 24) + "日前";
   }
 
+  function renderKpis() {
+    const likes = loadLikes();
+    const meals = likes.filter(l => l.status === "meal" || l.status === "trial").length;
+    const trials = likes.filter(l => l.status === "trial").length;
+    const revenue = trials * COORD_FEE;
+    const tiles = [
+      { v: likes.length, u: "件", l: "届いたライク(今週)" },
+      { v: meals, u: "件", l: "飯に誘い済み" },
+      { v: trials, u: "件", l: "有給一日体験を設定" },
+      { v: "¥" + revenue.toLocaleString(), u: "", l: "発生コーディネート料", accent: true },
+    ];
+    document.getElementById("kpis").innerHTML = tiles.map(t => `
+      <div class="kpi ${t.accent ? "accent" : ""}">
+        <div class="kv">${t.v}${t.u ? `<small>${t.u}</small>` : ""}</div>
+        <div class="kl">${t.l}</div>
+      </div>`).join("");
+  }
+
+  function pipeline(status) {
+    const idx = status === "new" ? 1 : status === "meal" ? 2 : 3; // 到達ステージ
+    const steps = ["ライク", "飯に誘う", "一日体験"];
+    let html = '<div class="pipeline">';
+    steps.forEach((s, i) => {
+      const n = i + 1;
+      const cls = n < idx ? "done" : (n === idx ? (status === "trial" ? "done" : "active") : "");
+      if (i > 0) html += `<div class="pbar ${n <= idx ? "filled" : ""}"></div>`;
+      html += `<div class="pstep ${cls}"><span class="pnum">${n < idx || (n === idx && status === "trial") ? "✓" : n}</span>${s}</div>`;
+    });
+    return html + "</div>";
+  }
+
   function render() {
-    const likes = loadLikes().slice().reverse();
+    renderKpis();
+    const stored = loadLikes();
+    const likes = stored.slice().reverse();
     document.getElementById("cnt").textContent = likes.length + " 件のライク";
     if (likes.length === 0) {
       leadsEl.innerHTML = `<div class="empty">まだライクはありません。<br><a href="seekers.html">求職者の画面</a>で先輩にライクを送ると、ここに届きます。</div>`;
@@ -95,27 +131,32 @@
     likes.forEach((l, idx) => {
       const m = mentorById(l.mentorId);
       if (!m) return;
-      const realIdx = loadLikes().length - 1 - idx; // index in stored (non-reversed) array
+      const realIdx = stored.length - 1 - idx;
       const done = l.status === "trial";
       const el = document.createElement("div");
       el.className = "lead" + (done ? " contacted" : "");
+      el.style.animationDelay = (idx * 0.06) + "s";
       el.innerHTML = `
         <div class="lt">
-          <div class="avatar" style="background:${m.color};width:46px;height:46px;font-size:17px">${m.initial}</div>
-          <div>
+          <div class="avatar seeker-av" style="background:${seekerFill()}">${l.seeker.name.charAt(0)}</div>
+          <span class="arrow">→</span>
+          <div class="avatar" style="background:${mentorFill(m)};width:44px;height:44px;font-size:16px;border-radius:13px">${m.initial}</div>
+          <div style="margin-left:4px">
             <div class="seeker">${l.seeker.name}${l.status === "new" ? '<span class="badge-new">NEW</span>' : ""}</div>
             <div class="meta">${l.seeker.prev} ・ ${fmt(l.at)}</div>
           </div>
         </div>
         <p class="liketo">「<b>${m.name}</b>(${m.role})」の下でやってみたい</p>
         <p style="font-size:14px;color:var(--ink-soft);margin:8px 0 0">本人メモ:${l.seeker.note}</p>
+        ${pipeline(l.status)}
         <div class="actions">
           ${l.status === "new"
             ? `<button class="btn btn-primary btn-sm" data-act="meal" data-i="${realIdx}">飯に誘う(無料)</button>`
             : l.status === "meal"
             ? `<span class="status-pill">✓ 飯に誘い済み</span>
                <button class="btn btn-primary btn-sm" data-act="trial" data-i="${realIdx}">有給一日体験を設定</button>`
-            : `<span class="status-pill">✓ 有給一日体験を設定済み(コーディネート料が発生)</span>`}
+            : `<span class="status-pill">✓ 有給一日体験を設定済み</span>
+               <span class="money">コーディネート料 ¥${COORD_FEE.toLocaleString()} 発生</span>`}
         </div>`;
       leadsEl.appendChild(el);
     });
@@ -135,7 +176,7 @@
       : `${first}さん、ライクありがとうございます。${BIZ.name}の${m.name}です。まずは一度、ご飯でも食べながら現場の話をしませんか?`;
     const feeBox = isTrial
       ? `<div style="background:var(--accent-soft);border:1px solid rgba(238,108,77,.3);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px;color:var(--ink-soft)">
-           この有給一日体験のコーディネート料: <b style="color:var(--accent-ink)">¥30,000</b><br>
+           この有給一日体験のコーディネート料: <b style="color:var(--accent-ink)">¥${COORD_FEE.toLocaleString()}</b><br>
            <span style="color:var(--muted)">日程調整・当日の付きそい・体験後の相互フィードバック収集こみ。${(m.role || "").includes("施工管理") ? "対象職種のため、採用成立時は別途 ¥250,000。" : ""}</span>
          </div>`
       : `<p style="font-size:13px;color:var(--muted);margin-top:10px">飯は無料です。会って相性が良ければ、次は有給の一日体験へ。</p>`;
@@ -161,11 +202,13 @@
     modalbg.classList.add("open");
   }
   function closeModal() { modalbg.classList.remove("open"); }
+  window.closeModal = closeModal;
   modalbg.addEventListener("click", (e) => { if (e.target === modalbg) closeModal(); });
 
   function resetDemo() {
     localStorage.removeItem("ichinichi_likes_v1");
     localStorage.removeItem("ichinichi_seeded_v1");
+    localStorage.removeItem("ichinichi_seeded_v2");
     location.reload();
   }
   window.resetDemo = resetDemo;

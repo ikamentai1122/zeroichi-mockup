@@ -417,7 +417,18 @@ footer.site a:hover { text-decoration: underline; }
 .mentor:hover { border-color: #4d4535; transform: translateY(-3px); box-shadow: var(--shadow); }
 .mentor:active { transform: translateY(0); }
 .mentor .top { display: flex; gap: 14px; align-items: center; }
-.avatar { width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; font-weight: 800; color: #fff; font-size: 20px; flex: 0 0 auto; box-shadow: var(--shadow-sm); }
+.avatar {
+  width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center;
+  font-weight: 800; color: #fff; font-size: 20px; flex: 0 0 auto; letter-spacing: 0;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 6px 16px rgba(0,0,0,.4);
+  position: relative;
+}
+/* online presence dot on an avatar (add .is-online on the avatar) */
+.avatar.is-online::after {
+  content: ""; position: absolute; right: -3px; bottom: -3px;
+  width: 15px; height: 15px; border-radius: 50%; background: var(--good);
+  box-shadow: 0 0 0 3px var(--surface), 0 0 10px rgba(53,192,123,.6);
+}
 .mentor .name { font-weight: 800; font-size: 17px; }
 .mentor .role { font-size: 13px; color: var(--muted); }
 .mentor .blurb { margin: 13px 0 0; font-size: 14px; color: var(--ink-soft); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
@@ -557,4 +568,187 @@ footer.site a:hover { text-decoration: underline; }
   .modal { padding: 22px 18px; }
   .stat .n { font-size: 38px; }
   .stat .n .vs { display: block; margin: 6px 0 0; }
+}
+
+/* =====================================================================
+   DEMO POLISH — VC 動画で「映る」製品画面の作り込み
+   ===================================================================== */
+
+/* ---- 求職者アプリ = 端末フレーム ---- */
+.device-stage {
+  display: flex; justify-content: center;
+  padding: 26px 16px 56px;
+}
+.device {
+  width: 412px; max-width: 94vw;
+  background: linear-gradient(160deg, #26211a, #0f0c09);
+  border-radius: 52px; padding: 13px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 2px 4px rgba(0,0,0,.5),
+    0 40px 90px rgba(0,0,0,.62);
+  position: relative;
+}
+.device::before { /* dynamic-island 風 */
+  content: ""; position: absolute; z-index: 5; top: 24px; left: 50%; transform: translateX(-50%);
+  width: 108px; height: 30px; border-radius: 999px; background: #000;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+.screen2 {
+  background: var(--paper); border-radius: 40px; overflow: hidden;
+  height: min(812px, 82vh); display: flex; flex-direction: column;
+  position: relative;
+}
+/* iOS 風ステータスバー */
+.statusbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 26px 6px; font-size: 13px; font-weight: 700; color: var(--ink);
+  flex: 0 0 auto;
+}
+.statusbar .sb-icons { display: inline-flex; gap: 7px; align-items: center; opacity: .9; }
+.statusbar .sb-icons svg { display: block; }
+/* アプリ内トップバー */
+.appbar {
+  flex: 0 0 auto; padding: 6px 20px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(238,108,77,.07), rgba(238,108,77,0));
+}
+.appbar .ab-top { display: flex; align-items: center; justify-content: space-between; }
+.appbar .ab-title { font-size: 19px; font-weight: 800; letter-spacing: .01em; }
+.appbar .ab-title em { color: var(--accent); font-style: normal; }
+.appbar .ab-live {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 800; color: var(--good);
+  background: rgba(53,192,123,.12); border: 1px solid rgba(53,192,123,.3);
+  padding: 4px 10px; border-radius: 999px;
+}
+.appbar .ab-live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px rgba(53,192,123,.8); animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+.appbar .ab-sub { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+/* スクロールする先輩フィード */
+.feed {
+  flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 26px; display: flex; flex-direction: column; gap: 14px;
+}
+.feed::-webkit-scrollbar { width: 0; }
+.feed-hint {
+  font-size: 12.5px; color: var(--ink-soft); line-height: 1.6;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; box-shadow: var(--shadow-sm);
+}
+.feed-hint b { color: var(--ink); }
+
+/* ---- 先輩カード(アプリ内) ---- */
+.mcard {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-sm);
+  cursor: pointer; transition: transform .16s ease, box-shadow .16s ease, border-color .16s;
+  animation: cardIn .5s cubic-bezier(.2,.7,.2,1) both;
+}
+.mcard:active { transform: scale(.99); }
+@media (hover:hover) { .mcard:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: #4d4535; } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.mcard .mc-cover { height: 6px; }
+.mcard .mc-body { padding: 16px 16px 15px; }
+.mcard .mc-top { display: flex; gap: 13px; align-items: center; }
+.mcard .avatar { width: 54px; height: 54px; border-radius: 15px; font-size: 21px; }
+.mcard .mc-name { font-weight: 800; font-size: 16.5px; line-height: 1.25; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.mcard .mc-role { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.mcard .mc-meta { display: flex; gap: 12px; margin: 13px 0 0; }
+.mcard .mc-meta .mm { font-size: 12px; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 5px; }
+.mcard .mc-meta .mm b { color: var(--ink); font-weight: 800; font-size: 13.5px; }
+.mcard .mc-meta .star { color: var(--amber); }
+.mcard .mc-blurb {
+  margin: 12px 0 0; font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.mcard .tags { margin-top: 12px; }
+.mcard .mc-foot { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
+.mcard .mc-prev { font-size: 11.5px; color: var(--muted); flex: 1 1 auto; }
+.mcard .likebtn { flex: 0 0 auto; }
+
+/* ---- ハート・ライクボタンの演出 ---- */
+.likebtn .h { font-size: 15px; display: inline-block; transition: transform .2s; }
+.likebtn.liked .h { animation: heartPop .5s cubic-bezier(.2,1.4,.4,1); }
+@keyframes heartPop { 0% { transform: scale(1); } 35% { transform: scale(1.5); } 100% { transform: scale(1); } }
+/* ライクした瞬間に飛ぶハート */
+.fly-heart { position: fixed; z-index: 90; font-size: 22px; color: var(--accent); pointer-events: none; animation: flyHeart .9s ease-out forwards; }
+@keyframes flyHeart { 0% { opacity: 1; transform: translateY(0) scale(1);} 100% { opacity: 0; transform: translateY(-60px) scale(1.6);} }
+
+/* ---- モーダル演出(スライド&フェード) ---- */
+.modal-bg { transition: opacity .28s ease; opacity: 0; }
+.modal-bg.open { opacity: 1; }
+.modal { transform: translateY(24px) scale(.98); opacity: 0; transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .3s; }
+.modal-bg.open .modal { transform: none; opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .modal, .modal-bg, .mcard { transition: none; animation: none; transform: none; opacity: 1; }
+}
+.modal .m-hero {
+  margin: -28px -28px 16px; padding: 26px 28px 20px;
+  background: linear-gradient(160deg, rgba(238,108,77,.14), rgba(238,108,77,0));
+  border-bottom: 1px solid var(--line-soft);
+}
+
+/* ---- toast(アイコン付き) ---- */
+.toast { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; border: 1px solid rgba(255,255,255,.08); }
+.toast::before { content: "✓"; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--good); color: #fff; font-size: 13px; font-weight: 800; flex: 0 0 auto; }
+
+/* ---- 事業者ダッシュボード:トラクション KPI ---- */
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 4px 0 24px; }
+@media (max-width: 720px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+.kpi {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 15px 16px; box-shadow: var(--shadow-sm);
+}
+.kpi .kv { font-size: 25px; font-weight: 800; letter-spacing: -.01em; line-height: 1; }
+.kpi .kv small { font-size: 13px; font-weight: 800; color: var(--muted); margin-left: 2px; }
+.kpi.accent .kv { color: var(--accent-ink); }
+.kpi .kl { font-size: 11.5px; color: var(--muted); margin-top: 8px; }
+
+/* ---- リード(届いたライク)のパイプライン表示 ---- */
+.lead { animation: cardIn .5s cubic-bezier(.2,.7,.2,1) both; }
+.lead .lt { align-items: center; }
+.lead .lt .avatar.seeker-av { width: 44px; height: 44px; font-size: 16px; border-radius: 13px; }
+.lead .arrow { color: var(--muted); font-size: 13px; margin: 0 2px; }
+.pipeline { display: flex; align-items: center; gap: 0; margin: 15px 0 4px; }
+.pipeline .pstep { display: flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.pipeline .pstep .pnum {
+  width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 11px; background: var(--paper-2); color: var(--muted); border: 1px solid var(--line);
+}
+.pipeline .pstep.done .pnum { background: var(--good); color: #fff; border-color: transparent; }
+.pipeline .pstep.active .pnum { background: var(--accent-grad); color: #fff; border-color: transparent; box-shadow: 0 0 0 4px rgba(238,108,77,.18); }
+.pipeline .pstep.done, .pipeline .pstep.active { color: var(--ink); }
+.pipeline .pbar { flex: 1 1 auto; height: 2px; background: var(--line); margin: 0 8px; border-radius: 2px; }
+.pipeline .pbar.filled { background: var(--good); }
+.lead .money { font-size: 12px; font-weight: 700; color: var(--good); }
+
+/* 端末内に収まるボトムシート(求職者アプリのプロフィール) */
+.screen2 .modal-bg {
+  position: absolute; inset: 0; padding: 0; align-items: flex-end;
+  background: rgba(0,0,0,.5); z-index: 40;
+}
+.screen2 .modal {
+  width: 100%; max-width: none; max-height: 90%;
+  border-radius: 26px 26px 40px 40px; padding: 26px 22px 22px;
+  transform: translateY(100%);
+}
+.screen2 .modal-bg.open .modal { transform: none; }
+.screen2 .modal::before { /* grab handle */
+  content: ""; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: 42px; height: 5px; border-radius: 999px; background: var(--line);
+}
+.screen2 .modal .m-hero { margin: 8px -22px 16px; padding: 18px 22px 18px; }
+.screen2 .modal .x { position: absolute; top: 14px; right: 16px; }
+/* プロフィールの主要CTAをシート下部に固定(常に押せる) */
+.screen2 .modal .actions {
+  position: sticky; bottom: 0; z-index: 2; margin: 18px -22px 0; padding: 14px 22px 6px;
+  background: linear-gradient(to top, var(--surface) 74%, transparent);
+}
+.screen2 .modal > p:last-child { margin-bottom: 4px; }
+
+/* 端末フレームは狭幅で少しだけ縮める */
+@media (max-width: 480px) {
+  .device { border-radius: 44px; padding: 10px; }
+  .screen2 { border-radius: 34px; height: min(760px, 80vh); }
 }

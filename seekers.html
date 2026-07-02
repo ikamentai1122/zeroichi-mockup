@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>ボスマッチ — 求職者の画面</title>
+<title>ボスマッチ — 求職者アプリ</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,31 +18,53 @@
   </div>
 </div>
 
-<main class="appshell">
-  <div class="apphead">
-    <div>
-      <h1 id="bizname"></h1>
-      <p class="sub" id="bizsub"></p>
+<!-- 端末フレームで動く求職者アプリ -->
+<div class="device-stage">
+  <div class="device">
+    <div class="screen2">
+      <div class="statusbar">
+        <span id="clock">9:41</span>
+        <span class="sb-icons" aria-hidden="true">
+          <svg width="18" height="12" viewBox="0 0 18 12"><g fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="5" width="3" height="7" rx="1"/><rect x="9" y="2.5" width="3" height="9.5" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></g></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12"><path fill="currentColor" d="M8 2.4c2.3 0 4.4.9 6 2.4l1.2-1.3A11 11 0 0 0 8 .5 11 11 0 0 0 .8 3.5L2 4.8A8.6 8.6 0 0 1 8 2.4Zm0 3.6c1.3 0 2.5.5 3.4 1.4l1.2-1.3A7 7 0 0 0 8 4a7 7 0 0 0-4.6 2.1l1.2 1.3A5 5 0 0 1 8 6Zm0 3.4c.5 0 1 .2 1.4.6L8 11.5 6.6 10c.4-.4.9-.6 1.4-.6Z"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0.5" y="1" width="21" height="10" rx="3" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2.5" width="16" height="7" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".5"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="ab-top">
+          <div class="ab-title">ボス<em>マッチ</em></div>
+          <span class="ab-live"><span class="dot"></span>募集中</span>
+        </div>
+        <p class="ab-sub" id="bizsub"></p>
+      </div>
+
+      <div class="feed" id="feed">
+        <div class="feed-hint">
+          この会社で<b>実際にあなたを教える先輩</b>です。人柄や教え方を見て、「この人の下でやってみたい」と思ったら<b>ライク</b>を。気が合えば、まずご飯や一日体験から。
+        </div>
+        <div id="grid"></div>
+      </div>
+
+      <!-- profile sheet (端末内にスライドイン) -->
+      <div class="modal-bg" id="modalbg">
+        <div class="modal" id="modal"></div>
+      </div>
     </div>
-    <span class="bizchip"><span class="dot"></span> 募集中</span>
   </div>
-
-  <p style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;font-size:14px;color:var(--ink-soft);box-shadow:var(--shadow);margin-top:0">
-    この会社で<b>実際にあなたを教える先輩</b>たちです。人柄や教え方を見て、「この人の下でやってみたい」と思ったら<b>ライク</b>を送りましょう。気が合えば、まず一緒にご飯や一日体験から。
-  </p>
-
-  <div class="mentors" id="grid" style="margin-top:20px"></div>
-</main>
-
-<!-- profile modal -->
-<div class="modal-bg" id="modalbg">
-  <div class="modal" id="modal"></div>
 </div>
 
 <script src="app.js"></script>
 <script>
-  document.getElementById("bizname").textContent = BIZ.name;
-  document.getElementById("bizsub").textContent = BIZ.trade + " ・ " + BIZ.area + " ・ " + BIZ.size;
+  document.getElementById("bizsub").textContent = BIZ.name + " ・ " + BIZ.trade;
+
+  // 端末の時計を実時間に
+  (function tick(){
+    var d = new Date();
+    document.getElementById("clock").textContent =
+      d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0");
+    setTimeout(tick, 20000);
+  })();
 
   const grid = document.getElementById("grid");
   const modalbg = document.getElementById("modalbg");
@@ -50,52 +72,66 @@
 
   function isLiked(id) { return loadLikes().some(l => l.mentorId === id); }
 
-  function sendLike(id) {
+  function flyHeart(fromEl) {
+    if (!fromEl) return;
+    const r = fromEl.getBoundingClientRect();
+    const h = document.createElement("div");
+    h.className = "fly-heart"; h.textContent = "♥";
+    h.style.left = (r.left + r.width / 2 - 11) + "px";
+    h.style.top = (r.top - 6) + "px";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 900);
+  }
+
+  function sendLike(id, fromEl) {
     if (isLiked(id)) return;
     const likes = loadLikes();
-    likes.push({
-      mentorId: id,
-      seeker: DEMO_SEEKER,
-      at: new Date().toISOString(),
-      status: "new",
-    });
+    likes.push({ mentorId: id, seeker: DEMO_SEEKER, at: new Date().toISOString(), status: "new" });
     saveLikes(likes);
     const m = mentorById(id);
-    toast("「" + m.name + "」さんにライクを送りました。事業者に通知されました。");
+    flyHeart(fromEl);
+    toast("「" + m.name + "」さんにライクを送りました。事業者に届きました。");
     render();
     if (modalbg.classList.contains("open")) openProfile(id);
   }
 
-  function mbtiOf(m) {
-    const f = (m.facts || []).find(x => x.k.toUpperCase() === "MBTI");
-    return f ? f.v.split("(")[0].trim() : null;
+  function metaRow(m) {
+    return `<div class="mc-meta">
+      ${m.rating ? `<span class="mm"><span class="star">★</span><b>${m.rating}</b></span>` : ""}
+      ${m.trained ? `<span class="mm">育てた未経験 <b>${m.trained}</b>人</span>` : ""}
+    </div>`;
   }
 
   function render() {
     grid.innerHTML = "";
-    allMentors().forEach(m => {
+    allMentors().forEach((m, i) => {
       const liked = isLiked(m.id);
-      const mbti = mbtiOf(m);
       const el = document.createElement("div");
-      el.className = "mentor";
+      el.className = "mcard";
+      el.style.animationDelay = (i * 0.06) + "s";
       el.innerHTML = `
-        <div class="top">
-          <div class="avatar" style="background:${m.color}">${m.initial}</div>
-          <div>
-            <div class="name">${m.name} ${mbti ? `<span class="mbti">${mbti}</span>` : ""}</div>
-            <div class="role">${m.role} ・ ${m.years}</div>
+        <div class="mc-cover" style="background:${mentorFill(m)}"></div>
+        <div class="mc-body">
+          <div class="mc-top">
+            <div class="avatar ${m.online ? "is-online" : ""}" style="background:${mentorFill(m)}">${m.initial}</div>
+            <div style="min-width:0">
+              <div class="mc-name">${m.name}</div>
+              <div class="mc-role">${m.role} ・ ${m.years}</div>
+            </div>
           </div>
-        </div>
-        <p class="blurb">${m.intro ? m.intro : "「" + m.style + "」"}</p>
-        <div class="tags">${m.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
-        <div class="row">
-          <span style="font-size:13px;color:var(--muted)">${m.prevJob}</span>
-          <button class="likebtn ${liked ? "liked" : ""}" data-id="${m.id}">
-            <span class="h">♥</span> ${liked ? "ライク済み" : "ライクを送る"}
-          </button>
+          ${metaRow(m)}
+          <p class="mc-blurb">${m.intro ? m.intro : "「" + m.style + "」"}</p>
+          <div class="tags">${m.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+          <div class="mc-foot">
+            <span class="mc-prev">${m.prevJob || ""}</span>
+            <button class="likebtn ${liked ? "liked" : ""}" data-id="${m.id}">
+              <span class="h">♥</span> ${liked ? "ライク済み" : "ライク"}
+            </button>
+          </div>
         </div>`;
       el.addEventListener("click", (e) => {
-        if (e.target.closest(".likebtn")) { e.stopPropagation(); sendLike(m.id); return; }
+        const lb = e.target.closest(".likebtn");
+        if (lb) { e.stopPropagation(); sendLike(m.id, lb); return; }
         openProfile(m.id);
       });
       grid.appendChild(el);
@@ -106,13 +142,16 @@
     const m = mentorById(id);
     const liked = isLiked(id);
     modal.innerHTML = `
-      <button class="x" onclick="closeModal()">×</button>
-      <div class="top" style="display:flex;gap:14px;align-items:center">
-        <div class="avatar" style="background:${m.color}">${m.initial}</div>
-        <div>
-          <h3>${m.name} ${mbtiOf(m) ? `<span class="mbti">${mbtiOf(m)}</span>` : ""}</h3>
-          <div class="mrole">${m.role} ・ ${m.years}</div>
+      <div class="m-hero">
+        <button class="x" onclick="closeModal()">×</button>
+        <div class="top" style="display:flex;gap:14px;align-items:center">
+          <div class="avatar ${m.online ? "is-online" : ""}" style="background:${mentorFill(m)}">${m.initial}</div>
+          <div>
+            <h3 style="margin:0">${m.name}</h3>
+            <div class="mrole">${m.role} ・ ${m.years}</div>
+          </div>
         </div>
+        ${metaRow(m)}
       </div>
       ${m.intro ? `<div class="field"><div class="k">自己紹介</div><div class="v">${m.intro}</div></div>` : ""}
       <div class="field"><div class="k">前職</div><div class="v">${m.prevJob}</div></div>
@@ -121,16 +160,17 @@
       <div class="field"><div class="k">一日の流れ</div><div class="v">${m.aboutDay}</div></div>
       <div class="tags">${m.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
       <div class="actions">
-        <button class="btn btn-primary ${liked ? "" : ""}" id="mlike" ${liked ? "disabled style=opacity:.6" : ""}>
-          ♥ ${liked ? "ライク済み(通知されました)" : "この先輩にライクを送る"}
+        <button class="btn btn-primary btn-block" id="mlike" ${liked ? "disabled style=opacity:.55" : ""}>
+          <span class="h">♥</span> ${liked ? "ライク済み(先方に通知されました)" : "この先輩にライクを送る"}
         </button>
       </div>
-      <p style="font-size:12px;color:var(--muted);margin:14px 0 0">ライクを送ると、この会社の担当者に通知が届きます。先方から連絡が来たら、まずはご飯や一日体験から。</p>`;
+      <p style="font-size:12px;color:var(--muted);margin:14px 0 0;text-align:center">ライクを送ると、この会社の担当者に通知が届きます。連絡が来たら、まずはご飯や一日体験から。</p>`;
     const b = modal.querySelector("#mlike");
-    if (!liked) b.addEventListener("click", () => sendLike(id));
+    if (!liked) b.addEventListener("click", () => sendLike(id, b));
     modalbg.classList.add("open");
   }
   function closeModal() { modalbg.classList.remove("open"); }
+  window.closeModal = closeModal;
   modalbg.addEventListener("click", (e) => { if (e.target === modalbg) closeModal(); });
 
   render();
