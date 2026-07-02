@@ -134,7 +134,7 @@
       ? `${first}さん、先日はありがとうございました。よければ近いうちに<b>一日、現場を体験</b>してみませんか?当日は<b>日当をお支払い</b>します。実際の仕事を見て、お互い「やれそうか」を確かめましょう。`
       : `${first}さん、ライクありがとうございます。${BIZ.name}の${m.name}です。まずは一度、ご飯でも食べながら現場の話をしませんか?`;
     const feeBox = isTrial
-      ? `<div style="background:#fff6f2;border:1px solid #f3d2c6;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px;color:var(--ink-soft)">
+      ? `<div style="background:var(--accent-soft);border:1px solid rgba(238,108,77,.3);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px;color:var(--ink-soft)">
            この有給一日体験のコーディネート料: <b style="color:var(--accent-ink)">¥30,000</b><br>
            <span style="color:var(--muted)">日程調整・当日の付きそい・体験後の相互フィードバック収集こみ。${(m.role || "").includes("施工管理") ? "対象職種のため、採用成立時は別途 ¥250,000。" : ""}</span>
          </div>`
