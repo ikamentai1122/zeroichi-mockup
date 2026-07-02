@@ -173,12 +173,10 @@ header.site {
 .btn-sm { padding: 9px 18px; font-size: 14px; }
 
 /* ---- hero (LP) ---- */
-.hero { padding: 84px 0 64px; }
-.hero-grid { display: grid; grid-template-columns: 1fr; gap: 52px; align-items: center; }
-@media (max-width: 920px) {
-  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
-  .hero-visual { order: -1; display: flex; justify-content: center; }
-}
+.hero { padding: 92px 0 72px; }
+/* 単一カラム・中央寄せ(スマホモックは廃止し PC そのまま) */
+.hero-grid { display: block; max-width: 720px; margin: 0 auto; }
+.hero-copy { text-align: center; }
 .kicker {
   display: inline-flex; align-items: center; gap: 8px;
   font-size: 12.5px; font-weight: 700; letter-spacing: .08em;
@@ -194,14 +192,14 @@ header.site {
 .hero h1 em { color: var(--accent); font-style: normal; }
 .hero .hero-lead {
   font-size: clamp(16px, 2.1vw, 19px); color: var(--ink-soft); font-weight: 500;
-  max-width: 520px; margin: 0 0 26px; line-height: 1.7;
+  max-width: 520px; margin: 0 auto 26px; line-height: 1.7;
 }
 .hero .hero-lead b { color: var(--ink); font-weight: 800; }
 
 /* hero micro-flow (3 steps, replaces prose) */
 .hero-flow {
   list-style: none; counter-reset: hf; margin: 0 0 32px; padding: 0;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px;
 }
 .hero-flow li {
   counter-increment: hf; position: relative;
@@ -226,7 +224,7 @@ header.site {
 .hero .note a:hover { border-color: var(--accent-ink); }
 
 /* ホームの2つの入口ボタン(求職者用 / 求人用) */
-.cta-choice { display: flex; gap: 14px; flex-wrap: wrap; }
+.cta-choice { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .choice {
   flex: 1 1 220px; display: flex; flex-direction: column; gap: 3px;
   padding: 15px 22px; border-radius: 16px; text-decoration: none;
