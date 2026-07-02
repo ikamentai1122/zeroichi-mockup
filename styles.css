@@ -174,7 +174,7 @@ header.site {
 
 /* ---- hero (LP) ---- */
 .hero { padding: 84px 0 64px; }
-.hero-grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 52px; align-items: center; }
+.hero-grid { display: grid; grid-template-columns: 1fr; gap: 52px; align-items: center; }
 @media (max-width: 920px) {
   .hero-grid { grid-template-columns: 1fr; gap: 40px; }
   .hero-visual { order: -1; display: flex; justify-content: center; }
