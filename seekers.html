@@ -18,53 +18,31 @@
   </div>
 </div>
 
-<!-- 端末フレームで動く求職者アプリ -->
-<div class="device-stage">
-  <div class="device">
-    <div class="screen2">
-      <div class="statusbar">
-        <span id="clock">9:41</span>
-        <span class="sb-icons" aria-hidden="true">
-          <svg width="18" height="12" viewBox="0 0 18 12"><g fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="5" width="3" height="7" rx="1"/><rect x="9" y="2.5" width="3" height="9.5" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></g></svg>
-          <svg width="16" height="12" viewBox="0 0 16 12"><path fill="currentColor" d="M8 2.4c2.3 0 4.4.9 6 2.4l1.2-1.3A11 11 0 0 0 8 .5 11 11 0 0 0 .8 3.5L2 4.8A8.6 8.6 0 0 1 8 2.4Zm0 3.6c1.3 0 2.5.5 3.4 1.4l1.2-1.3A7 7 0 0 0 8 4a7 7 0 0 0-4.6 2.1l1.2 1.3A5 5 0 0 1 8 6Zm0 3.4c.5 0 1 .2 1.4.6L8 11.5 6.6 10c.4-.4.9-.6 1.4-.6Z"/></svg>
-          <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0.5" y="1" width="21" height="10" rx="3" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2.5" width="16" height="7" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".5"/></svg>
-        </span>
-      </div>
-
-      <div class="appbar">
-        <div class="ab-top">
-          <div class="ab-title">ボス<em>マッチ</em></div>
-          <span class="ab-live"><span class="dot"></span>募集中</span>
-        </div>
-        <p class="ab-sub" id="bizsub"></p>
-      </div>
-
-      <div class="feed" id="feed">
-        <div class="feed-hint">
-          この会社で<b>実際にあなたを教える先輩</b>です。人柄や教え方を見て、「この人の下でやってみたい」と思ったら<b>ライク</b>を。気が合えば、まずご飯や一日体験から。
-        </div>
-        <div id="grid"></div>
-      </div>
-
-      <!-- profile sheet (端末内にスライドイン) -->
-      <div class="modal-bg" id="modalbg">
-        <div class="modal" id="modal"></div>
-      </div>
+<main class="appshell">
+  <div class="apphead">
+    <div>
+      <h1 id="bizname"></h1>
+      <p class="sub" id="bizsub"></p>
     </div>
+    <span class="bizchip"><span class="dot"></span> 募集中</span>
   </div>
+
+  <p class="feed-hint" style="margin:0 0 20px">
+    この会社で<b>実際にあなたを教える先輩</b>です。人柄や教え方を見て、「この人の下でやってみたい」と思ったら<b>ライク</b>を。気が合えば、まずご飯や一日体験から。
+  </p>
+
+  <div class="mentors" id="grid"></div>
+</main>
+
+<!-- profile modal -->
+<div class="modal-bg" id="modalbg">
+  <div class="modal" id="modal"></div>
 </div>
 
 <script src="app.js"></script>
 <script>
-  document.getElementById("bizsub").textContent = BIZ.name + " ・ " + BIZ.trade;
-
-  // 端末の時計を実時間に
-  (function tick(){
-    var d = new Date();
-    document.getElementById("clock").textContent =
-      d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0");
-    setTimeout(tick, 20000);
-  })();
+  document.getElementById("bizname").textContent = BIZ.name;
+  document.getElementById("bizsub").textContent = BIZ.trade + " ・ " + BIZ.area + " ・ " + BIZ.size;
 
   const grid = document.getElementById("grid");
   const modalbg = document.getElementById("modalbg");
