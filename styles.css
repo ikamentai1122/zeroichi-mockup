@@ -222,6 +222,29 @@ header.site {
 @media (max-width: 400px) { .hero-flow li:not(:last-child)::after { display: none; } }
 .hero .cta-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
 .hero .note { font-size: 13px; color: var(--muted); margin-top: 16px; }
+.hero .note a { color: var(--accent-ink); text-decoration: none; margin-left: 4px; border-bottom: 1px solid rgba(238,108,77,.35); }
+.hero .note a:hover { border-color: var(--accent-ink); }
+
+/* ホームの2つの入口ボタン(求職者用 / 求人用) */
+.cta-choice { display: flex; gap: 14px; flex-wrap: wrap; }
+.choice {
+  flex: 1 1 220px; display: flex; flex-direction: column; gap: 3px;
+  padding: 15px 22px; border-radius: 16px; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+  transition: transform .14s ease, box-shadow .2s, border-color .2s;
+}
+.choice:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.choice .ch-k { font-size: 12px; font-weight: 700; letter-spacing: .02em; color: var(--muted); }
+.choice .ch-t { font-size: 17px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.choice .ch-arrow { transition: transform .16s ease; }
+.choice:hover .ch-arrow { transform: translateX(4px); }
+.choice.choice-primary {
+  background: var(--accent-grad); border-color: transparent;
+  box-shadow: 0 10px 26px rgba(232,90,56,.4);
+}
+.choice.choice-primary:hover { box-shadow: 0 14px 34px rgba(232,90,56,.5); }
+.choice.choice-primary .ch-k { color: rgba(255,255,255,.88); }
+.choice.choice-primary .ch-t { color: #fff; }
 
 /* hero entrance (staggered) */
 @keyframes heroIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
