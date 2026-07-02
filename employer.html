@@ -58,15 +58,19 @@
   const COORD_FEE = 30000; // 有給一日体験のコーディネート料
 
   // 商談で「生きている」画面に見せるため、複数ステージのライクを用意。
+  // seed:true のリードは「別の求職者から届いた」ダッシュボードの土台。
+  // 求職者アプリ側でリロードしても消えず、本人が送ったライク(seed なし)だけが増える。
   (function seed() {
-    if (!localStorage.getItem("ichinichi_seeded_v2")) {
+    const likes = loadLikes();
+    if (!likes.some(l => l.seed)) {
       const mins = m => new Date(Date.now() - m * 60000).toISOString();
-      saveLikes([
-        { mentorId: "m1", seeker: { name: "渡辺 さん(26)", prev: "元・アパレル販売(4年) / 春日市在住", note: "体を動かす仕事に変えたい。人に教えてもらえる環境が希望。" }, at: mins(60 * 48), status: "trial" },
-        { mentorId: "m2", seeker: { name: "井上 さん(31)", prev: "元・経理事務(6年) / 福岡市在住", note: "数字と書類は得意。手に職をつけたい。" }, at: mins(60 * 6), status: "meal" },
-        { mentorId: "m4", seeker: { name: "木下 さん(34)", prev: "元・飲食店長(8年) / 大野城市在住", note: "現場は未経験ですが、段取りとチーム管理には自信あり。" }, at: mins(95), status: "new" },
-      ]);
-      localStorage.setItem("ichinichi_seeded_v2", "1");
+      const seedLeads = [
+        { mentorId: "m1", seed: true, seeker: { name: "渡辺 さん(26)", prev: "元・アパレル販売(4年) / 春日市在住", note: "体を動かす仕事に変えたい。人に教えてもらえる環境が希望。" }, at: mins(60 * 48), status: "trial" },
+        { mentorId: "m2", seed: true, seeker: { name: "井上 さん(31)", prev: "元・経理事務(6年) / 福岡市在住", note: "数字と書類は得意。手に職をつけたい。" }, at: mins(60 * 6), status: "meal" },
+        { mentorId: "m4", seed: true, seeker: { name: "木下 さん(34)", prev: "元・飲食店長(8年) / 大野城市在住", note: "現場は未経験ですが、段取りとチーム管理には自信あり。" }, at: mins(95), status: "new" },
+      ];
+      // 既存(=本人が送ったライク)は末尾に温存して、シードは土台として先頭へ。
+      saveLikes(seedLeads.concat(likes.filter(l => !l.seed)));
     }
   })();
 

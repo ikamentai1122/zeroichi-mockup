@@ -70,7 +70,12 @@
   const modalbg = document.getElementById("modalbg");
   const modal = document.getElementById("modal");
 
-  function isLiked(id) { return loadLikes().some(l => l.mentorId === id); }
+  // デモでは毎回まっさらから始められるよう、リロード時に「本人が送ったライク」を消す。
+  // (事業者ダッシュボードの土台になる seed リードは残す)
+  saveLikes(loadLikes().filter(l => l.seed));
+
+  // 「ライク済み」判定は “本人(この求職者)” のライクだけ。seed(他の求職者)では点かない。
+  function isLiked(id) { return loadLikes().some(l => l.mentorId === id && !l.seed); }
 
   function flyHeart(fromEl) {
     if (!fromEl) return;
@@ -88,11 +93,27 @@
     const likes = loadLikes();
     likes.push({ mentorId: id, seeker: DEMO_SEEKER, at: new Date().toISOString(), status: "new" });
     saveLikes(likes);
-    const m = mentorById(id);
     flyHeart(fromEl);
-    toast("「" + m.name + "」さんにライクを送りました。事業者に届きました。");
     render();
-    if (modalbg.classList.contains("open")) openProfile(id);
+    showLikeSuccess(mentorById(id));
+  }
+
+  // ライク送信後の確認モーダル(端末内にスライドイン)
+  function showLikeSuccess(m) {
+    modal.innerHTML = `
+      <div class="like-done">
+        <div class="ld-badge">♥</div>
+        <h3>ライクを送りました！</h3>
+        <p><b>${m.name}</b> さん(${m.role})に<br>「あなたの下で働いてみたい」が届きました。</p>
+        <div class="ld-steps">
+          <div class="ld-step done"><span class="ld-n">✓</span>${BIZ.name} の担当者に通知が届く</div>
+          <div class="ld-step"><span class="ld-n">2</span>まずは一緒にご飯(無料)</div>
+          <div class="ld-step"><span class="ld-n">3</span>有給の一日体験で確かめる</div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="closeModal()">続けて先輩を見る</button>
+        <p class="ld-foot">連絡が来るまで、他の先輩もチェックしてみましょう。</p>
+      </div>`;
+    modalbg.classList.add("open");
   }
 
   function metaRow(m) {
